@@ -43,4 +43,5 @@ If you have compiled the game up to this point on this computer atleast once, th
 3. Now, hit the top where the path would be and type "cmd", followed by enter.<br/>
 ![Github Logo](/github_things/cmd.png)<br/>
 <br/>
-4. Lastly, do either "lime test windows -debug" OR "lime test windows -release" and you should be good!
+4. Now, you need to type "haxelib install random 1.4.1 " into the console.<br/>
+5. Lastly, do either "lime test windows -debug" OR "lime test windows -release" and you should be good!
