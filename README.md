@@ -9,6 +9,7 @@ The source code was written by [me (DillyzThe1!)](https://github.com/DillyzThe1)
 This was made by studying the source code of the original game, the kade engine, and various articales on haxe documentation.<br/>
 Please play the original game here: https://ninja-muffin24.itch.io/friday-night-funkin<br/>
 Also, some credit to: https://github.com/KadeDev/Kade-Engine<br/>
+Next, the inspiration for this whole thing: https://github.com/studioNOKOI/fnfoffsethelper<br/>
 And finally, self promotion to my discord: https://discord.gg/49NFTwcYgZ<br/>
 
 IF you wish to distribute edits to this, PLEASE fork the project and open source it.<br/>
