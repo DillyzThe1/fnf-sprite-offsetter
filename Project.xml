@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<!-- _________________________ Application Settings _________________________ -->
+
+	<app title="FNF Offset Tester by DillyzThe1" file="Offsets" packageName="com.github.dillyztheone.fnfoffset" package="com.github.dillyztheone.fnfoffset" main="Main" version="1.0" company="DillyzThe1" />
+
+	<!--Switch Export with Unique ApplicationID and Icon-->
+	<set name="APP_ID" value="0x8732d50217f845dd" />
+
+	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
+		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
+	<!-- <app preloader="Preloader" resizable="true" /> -->
+	<app preloader="flixel.system.FlxPreloader" />
+
+	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
+	<set name="SWF_VERSION" value="11.8" />
+
+	<!-- ____________________________ Window Settings ___________________________ -->
+
+	<!--These window settings apply to all targets-->
+	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" />
+
+	<!--HTML5-specific-->
+	<window if="html5" resizable="true" />
+
+	<!--Desktop-specific-->
+	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false"/>
+
+	<!--Mobile-specific-->
+	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" resizable="false"/>
+
+	<!--Switch-specific-->
+	<window if="switch" orientation="landscape" fullscreen="true" width="0" height="0" resizable="true" />
+
+	<!-- _____________________________ Path Settings ____________________________ -->
+
+	<set name="BUILD_DIR" value="export/debug" if="debug" />
+	<set name="BUILD_DIR" value="export/release" unless="debug" />
+	<set name="BUILD_DIR" value="export/32bit" if="32bit" />
+
+	<classpath name="source" />
+
+	<!--<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
+	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>-->
+	
+	<!-- <define name="PRELOAD_ALL" /> -->
+	<define name="PRELOAD_ALL" unless="web" />
+	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
+	
+	<section if="PRELOAD_ALL">
+		<library name="music"    preload="true" />
+		<library name="characters"   preload="true" />
+		<library name="custom-characters"   preload="true" />
+		<library name="title-stuff"   preload="true" />
+		<library name="images"   preload="true" />
+		<library name="exports"   preload="true" />
+	</section>
+	
+	<section if="NO_PRELOAD_ALL">
+		<library name="music"    preload="false" />
+		<library name="characters"   preload="false" />
+		<library name="custom-characters"   preload="false" />
+		<library name="title-stuff"   preload="false" />
+		<library name="images"   preload="false" />
+		<library name="exports"   preload="false" />
+	</section>
+	
+	<assets path="assets/music"    library="music"    exclude="*.ogg" if="web"/>
+	<assets path="assets/music"    library="music"    exclude="*.mp3" unless="web"/>
+	<assets path="assets/characters"   library="characters"   exclude="*.ogg" if="web"/>
+	<assets path="assets/characters"   library="characters"   exclude="*.mp3" unless="web"/>
+	<assets path="assets/custom-characters"   library="custom-characters"   exclude="*.ogg" if="web"/>
+	<assets path="assets/custom-characters"   library="custom-characters"   exclude="*.mp3" unless="web"/>
+	<assets path="assets/title-stuff"   library="title-stuff"   exclude="*.ogg" if="web"/>
+	<assets path="assets/title-stuff"   library="title-stuff"   exclude="*.mp3" unless="web"/>
+	<assets path="assets/images"   library="images"   exclude="*.ogg" if="web"/>
+	<assets path="assets/images"   library="images"   exclude="*.mp3" unless="web"/>
+	<assets path="assets/exports"   library="images"   exclude="*.ogg" if="web"/>
+	<assets path="assets/exports"   library="images"   exclude="*.mp3" unless="web"/>
+	
+	<assets path='art/README.txt' rename="readn't me.txt" />
+	<assets path='art/HOW_TO.txt' rename="how to use.txt" />
+	<!-- <template path='mods' /> -->
+	
+	<!--<assets path="CHANGELOG.md" rename='changelog.txt'/>
+	 _______________________________ Libraries ______________________________ -->
+
+	<haxelib name="flixel" />
+	<haxedev set='webgl' />
+
+	<!--In case you want to use the addons package-->
+	<haxelib name="flixel-addons" />
+	<haxelib name="hscript" />
+	<haxelib name="random" />
+
+	<!--In case you want to use the ui package-->
+	<haxelib name="flixel-ui" />
+	<haxelib name="faxe" if='switch'/>
+
+	<!--Disable the Flixel core focus lost screen-->
+	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
+
+	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
+	<haxedef name="FLX_NO_DEBUG" unless="debug" />
+
+	<!--Enable this for Nape release builds for a serious peformance improvement-->
+	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
+
+	<!-- _________________________________ Custom _______________________________ -->
+
+	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
+	
+	<icon path="art/icon8.png" size='8'/>
+	<icon path="art/icon16.png" size='16'/>
+	<icon path="art/icon32.png" size='32'/>
+	<icon path="art/icon64.png" size='64'/>
+	<icon path="art/icon128.png" size='128'/>
+	<icon path="art/icon256.png" size='256'/>
+	<icon path="art/icon512.png" size='512'/>
+	<icon path="art/iconOG.png" />
+	
+</project>

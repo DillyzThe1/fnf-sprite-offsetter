@@ -1,0 +1,26 @@
+Hey! You're probably wondering how to use this program.
+Well, adding a custom character is pretty easy.
+First, go to "assets\custom-characters".
+Next, paste the png and xml files.
+Now you want to make a txt file using the same name as the png and xml.
+If you need to see what i mean, look at "assets\custom-characters\Pico_FNF_assetss.txt"
+
+Now that you have a txt with said file name, go into both that file and the xml. (i recommend notepad++ for this)
+On every line do the following:
+
+Look in the xml for an animation name.
+You should see something like "<SubTexture name="Pico Down Note0000" x="0" y="0" width="723" height="382">"
+The name for this xml animaiton is called "Pico Down Note", which is grouped with everything under the same name.
+Now, go into the txt we mentioned earlier after copying that.
+Let's say we want to call this "singDOWN" like most down note animations are called.
+You need to type the following on the next line down (if there are no lines, start at the top):
+	animNAME:Xml Animation Name
+Which in our case is:
+	singDOWN:Pico Down Note
+
+Now repeat that whole section for every animation and boot up the program.
+Good luck!
+
+(NOTE: animation offsets currently do not read or write, please write them down yourself.)
+(BTW YOU NEED AN ANIMATION CALLED 'idle' OR THE GAME MIGHT CRASH!)
+

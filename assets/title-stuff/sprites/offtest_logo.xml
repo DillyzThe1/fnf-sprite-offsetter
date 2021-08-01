@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="offsettestor_logo.png">
+	<!-- someone generated this using my java program?!? cool! -->
+	<!-- they probably animated this with opentoonz and ran the txt through -->
+	<!-- http://www.github.com/DillyzThe1 -->
+	<SubTexture name="offset bump idle0000" x="0" y="0" width="1103" height="614"/>
+	<SubTexture name="offset bump idle0001" x="0" y="0" width="1103" height="614"/>
+	<SubTexture name="offset bump idle0002" x="1103" y="0" width="1103" height="614"/>
+	<SubTexture name="offset bump idle0003" x="1103" y="0" width="1103" height="614"/>
+	<SubTexture name="offset bump idle0004" x="0" y="614" width="1103" height="614"/>
+	<SubTexture name="offset bump idle0005" x="0" y="614" width="1103" height="614"/>
+	<SubTexture name="offset bump idle0006" x="1103" y="614" width="1103" height="614"/>
+	<SubTexture name="offset bump idle0007" x="1103" y="614" width="1103" height="614"/>
+	<SubTexture name="offset bump idle0008" x="0" y="0" width="1103" height="614"/>
+	<SubTexture name="offset bump idle0009" x="0" y="0" width="1103" height="614"/>
+</TextureAtlas>

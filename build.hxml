@@ -1,0 +1,5 @@
+-cp source
+-D analyzer-optimize
+-main Main
+--interp
+-lib random

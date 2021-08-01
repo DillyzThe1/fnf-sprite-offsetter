@@ -1,0 +1,10 @@
+flip:true
+idle:Pico Idle Dance
+singDOWN:Pico Down Note0
+singDOWNmiss:Pico Down Note MISS
+singLEFT:Pico NOTE LEFT0
+singLEFTmiss:Pico NOTE LEFT miss
+singRIGHT:Pico Note Right0
+singRIGHTmiss:Pico Note Right Miss
+singUP:pico Up note0
+singUPmiss:pico Up note miss
