@@ -155,7 +155,7 @@ class TitleState extends MusicBeatState
 
         var moveArray = [FlxG.keys.pressed.UP,FlxG.keys.pressed.DOWN,FlxG.keys.pressed.LEFT,FlxG.keys.pressed.RIGHT];
 
-        if (moveArray.contains(true))
+        /*if (moveArray.contains(true))
             for (i in 0...moveArray.length)
                 if (moveArray[i] == true)
                 {
@@ -171,7 +171,7 @@ class TitleState extends MusicBeatState
                             bfDance.x += 10;
                     }
                     trace("bf coords: " + bfDance.x + "," + bfDance.y);
-                }
+                }*/ //FORGOT TO REMOVE THIS 
 
         if (FlxG.keys.justPressed.ENTER && !inTransition && skippedIntro)
         {

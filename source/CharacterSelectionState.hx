@@ -1,5 +1,7 @@
 package;
 
+import flixel.util.FlxTimer;
+import flixel.util.FlxColor;
 import flixel.FlxG;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxSprite;
@@ -8,9 +10,12 @@ import sys.FileSystem;
 import sys.io.File;
 #end
 
+using StringTools;
+
 class CharacterSelectionState extends MusicBeatState
 {
     public var characters:Array<String> = new Array<String>();
+    public var charDir:Array<String> = new Array<String>();
 
     var curSel:Int = 0;
     var grpStuff:FlxTypedGroup<Alphabet>;
@@ -22,16 +27,28 @@ class CharacterSelectionState extends MusicBeatState
         super.create();
 
         #if cpp
-        for (i in FileSystem.readDirectory(FileSystem.absolutePath("assets/custom-characters")))
+        for (dir in FileSystem.readDirectory("assets/custom-characters/"))
         {
-            if (!StringTools.endsWith(i,".png"))
+            if (dir.endsWith('.txt') || dir.endsWith('.png') || dir.endsWith('.xml'))
                 continue;
+
+            for (file in FileSystem.readDirectory("assets/custom-characters/" + dir))
+            {
+                if (!file.endsWith('.png'))
+                    continue;
+                
+                var assetName = file.split('.png')[0];
+                characters.push(assetName);
+                charDir.push(dir);
+                trace(assetName + " at " + dir);
+            }
             
-            characters.push(i.split('.')[0]);
+           //characters.push(i.split('.')[0]);
         }
         #else
         trace('C++ is NOT active. Cannot reach files!');
         characters.push('error');
+        charDir.push('error');
         #end
 
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuBGBlue','img'));
@@ -40,9 +57,9 @@ class CharacterSelectionState extends MusicBeatState
         grpStuff = new FlxTypedGroup<Alphabet>();
 		add(grpStuff);
 
-        for (i in 0...characters.length)
+        for (i in 0...charDir.length)
         {
-            var txt:Alphabet = new Alphabet(0, (70 * i) + 30, characters[i], true, false);
+            var txt:Alphabet = new Alphabet(0, (70 * i) + 30, charDir[i], true, false);
             txt.targetY = i;
             txt.x += 25;
             grpStuff.add(txt);
@@ -50,6 +67,8 @@ class CharacterSelectionState extends MusicBeatState
 
         changeSelection();
     }
+
+    var inTransition:Bool = false;
 
     override function update(elapsed:Float)
     {
@@ -70,8 +89,26 @@ class CharacterSelectionState extends MusicBeatState
                             changeSelection(1);
                         case 2:
                             FlxG.switchState(new TitleState());
+                            FlxG.sound.play(Paths.sound('cancelMenu','title'));
                         case 3:
-                            FlxG.switchState(new OffsetState(characters[curSel]));
+                            if (!inTransition)
+                            {
+                                for (item in grpStuff.members)
+                                {
+                                    item.alpha = 0;
+                                    if (item.targetY == 0) item.alpha = 1;
+                                }
+                    
+                                FlxG.camera.flash(FlxColor.WHITE, 1);
+                                FlxG.sound.play(Paths.sound('confirmMenu','title'), 0.7);
+                    
+                                inTransition = true;
+                    
+                                new FlxTimer().start(2, function(tmr:FlxTimer)
+                                {
+                                    FlxG.switchState(new OffsetState(characters[curSel],charDir[curSel]));
+                                });
+                            }
                     }
                 }
         }

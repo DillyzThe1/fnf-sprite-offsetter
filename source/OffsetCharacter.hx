@@ -16,33 +16,23 @@ class OffsetCharacter extends Character
 {
     public var animNames:Array<String> = new Array<String>();
     public var charLocation:String;
+    public var charDir:String;
+    public var preventOffsetChange:Bool = false;
 
-    public function new(x:Float,y:Float,?charLocation:String = 'Pico_FNF_assetss') 
+    public function new(x:Float,y:Float,?charLocation:String = 'Pico_FNF_assetss',?charDir:String = 'pico',?right:Bool = false) 
     {
 
-        super(x,y,'custom',false,true);
+        super(x,y,'custom',right,true);
         this.charLocation = charLocation;
+        this.charDir = charDir;
 
         #if cpp
-        var path = 'assets/custom-characters/' + charLocation + '.txt';
-        #else
-        var path = Paths.txt(charLocation,'other-char');
-        #end
-        trace (path);
-        var animInfo = parseTextFile(path);//
+        var animInfo = parseTextFile('assets/custom-characters/$charDir/$charLocation.txt');
+        var hackerReal = parseWithPrecaution('assets/exports/ForKE1.6/$charLocation' + (right ? '-right' : '-left') + 'Offsets.txt');
 
-        //FlxAssets.getBitmapData('assets/custom-characters/' + charLocation + '.png');
-
-        var img = BitmapData.fromImage(Image.fromFile('assets/custom-characters/' + charLocation + '.png'));
-        #if cpp
-        //FlxGraphic.fromAssetKey('assets/custom-characters/' + charLocation + '.png');
-        var xml = File.getContent('assets/custom-characters/' + charLocation + '.xml');
-        trace(img);
-        //trace(xml);
+        var img = BitmapData.fromImage(Image.fromFile('assets/custom-characters/$charDir/$charLocation.png'));
+        var xml = File.getContent('assets/custom-characters/$charDir/$charLocation.xml');
         frames = FlxAtlasFrames.fromSparrow(img,xml);
-        #else
-        frames = Paths.getSparrowAtlas(charLocation,'other-char');
-        #end
 
         for (i in animInfo)
         {
@@ -52,28 +42,48 @@ class OffsetCharacter extends Character
                 animNames.push(animStuff[0]);
                 animation.addByPrefix(animStuff[0], animStuff[1], 24, false);
                 addOffset(animStuff[0]);
-                trace(animStuff[0] + ' added from ' + charLocation + ' as ' + animStuff[1]);
             }
             else this.flip(animStuff[1] == 'true');
         }
 
+        for (i in hackerReal)
+        {
+            var stuff = i.split(' ');
+
+            addOffset(stuff[0],Std.parseInt(stuff[1]),Std.parseInt(stuff[2]));
+            this.preventOffsetChange = true;
+        }
+
+        if (right) this.flip();
+
         playAnim('idle');
 
         dance();
+        #end
     }
 
-    public function parseTextFile(path:String)
+    public function parseWithPrecaution(path:String):Array<String>
     {
         #if cpp
-        trace(path);
+        if (FileSystem.exists(FileSystem.absolutePath(path)))
+        {
+            var a:Array<String> = File.getContent(path).trim().split('\n');
+            for (i in 0...a.length) a[i] = a[i].trim();
+            trace('offsets found! pogrz!');
+            return a;
+        }
+        else trace('no KE offset file found!');
+        #end
+        return [];
+    }
+
+    public function parseTextFile(path:String):Array<String>
+    {
+        #if cpp
         var a:Array<String> = File.getContent(path).trim().split('\n');
-        trace(a);
         for (i in 0...a.length) a[i] = a[i].trim();
         return a;
-        #else
-        var list:Array<String> = Assets.getText(path).trim().split('\n');
-        for (i in 0...list.length) list[i] = list[i].trim();
-        return list;
         #end
+        return [];
     }
 }

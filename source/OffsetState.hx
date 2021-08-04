@@ -1,5 +1,8 @@
 package;
 
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import flixel.util.FlxTimer;
 import flixel.text.FlxText;
 import flixel.*;
 import Random;
@@ -18,6 +21,9 @@ class OffsetState extends MusicBeatState
     public var curtains:FlxSprite;
 
     public var customCharName:String = 'Pico_FNF_assetss';
+    public var customCharDir:String = 'pico';
+    private var charOnRight:Bool = false;
+    private var starterOffsets:Map<String,Array<Dynamic>>;
 
     private var camFollow:FlxObject;
     private var defZoom:Float = 0;
@@ -27,10 +33,18 @@ class OffsetState extends MusicBeatState
     var curAnim:Int = 0;
     var animDispaly:FlxText;
 
-    public function new(customChar:String = 'Pico_FNF_assetss')
+    var reminderText:FlxText;
+
+    var camGame:FlxCamera;
+    var camHUD:FlxCamera;
+
+    public function new(customChar:String = 'Pico_FNF_assetss',charDir:String = 'pico',?flip:Bool = false,?animOffsets:Map<String,Array<Dynamic>> = null)
     {
         super();
         this.customCharName = customChar;
+        this.charOnRight = flip;
+        this.starterOffsets = animOffsets;
+        this.customCharDir = charDir;
     }
 
     override public function create()
@@ -72,34 +86,74 @@ class OffsetState extends MusicBeatState
 		dad = new Character(100, 100, 'dad');
 
         boyfriend = new Boyfriend(770, 450, 'bf');
-        offsetChar = new OffsetCharacter(100,100,customCharName);
-        ghostChar = new OffsetCharacter(100,100,customCharName);
+        if (!charOnRight)
+        {
+            offsetChar = new OffsetCharacter(100,100,customCharName,false);
+            ghostChar = new OffsetCharacter(100,100,customCharName,false);
+        }
+        else
+        {
+            offsetChar = new OffsetCharacter(770,450,customCharName,true);
+            ghostChar = new OffsetCharacter(770,450,customCharName,true);
+        }
+        if (starterOffsets != null && !offsetChar.preventOffsetChange) offsetChar.offsets = starterOffsets;
         ghostChar.alpha = 0.5;
 
         add(gf);
         add(dad);
+        if (charOnRight) add(boyfriend);
         add(ghostChar);
         add(offsetChar);
-		add(boyfriend);
+        if (!charOnRight) add(boyfriend);
+		
+        var chips = 85;
+        var crisps = 125;
 
-        gameOffset = new FlxText(100, 150, 0,
-			"X and Y is controlled with WASD\nOffsets are controlled with IJKL", 20);
+        gameOffset = new FlxText(100 - chips, 150 - crisps, 0,
+			"X and Y is controlled with WASD\nOffsets are controlled with SHIFT + WASD", 20);
 		add(gameOffset);
 
-        spriteOffset = new FlxText(100, 200, 0,
-			"null", 20);
+        spriteOffset = new FlxText(100 - chips, 200 - crisps, 0,
+			"Hit Q&E to swap animations.\nHit CONTROL + arrow keys to zoom, and normal arrow keys to move the camera.", 20);
 		add(spriteOffset);
 
+        reminderText = new FlxText(100 - chips, 250 - crisps, 0,
+			'Hit space to swap sides, and V to preview the in-game camera.', 20);
+		add(reminderText);
+
+        camGame = new FlxCamera();
         camFollow = new FlxObject(0, 0, 1, 1);
 		camFollow.setPosition(690, 480);
 		add(camFollow);
-
+        camHUD = new FlxCamera();
+        camHUD.bgColor.alpha = 0;
+        
+        FlxG.cameras.reset(camGame);
+        FlxG.cameras.add(camHUD,false);
         FlxG.camera.follow(camFollow, LOCKON, 0.04);
 		FlxG.camera.zoom = defZoom;
 		FlxG.camera.focusOn(camFollow.getPosition());
 
+        gameOffset.cameras = [camHUD];
+        spriteOffset.cameras = [camHUD];
+        reminderText.cameras = [camHUD];
+
         super.create();
     }
+
+    public function getOffsetPos():Offset
+    {
+        if (charOnRight) return new Offset(770,450);
+        return new Offset(100,100);
+    }
+
+    var stopSpammingCamera = false;
+
+    function tweenCam(zoomAmount:Float):Void
+    {
+        FlxTween.tween(FlxG.camera, {zoom: zoomAmount}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.smootherStepInOut});
+    }
+        
 
     override public function update(elapsed:Float)
     {
@@ -107,9 +161,11 @@ class OffsetState extends MusicBeatState
         FlxG.watch.addQuick('funni beat', curBeat);
         FlxG.watch.addQuick('funni step', curStep);
 
+        var shiftHeld = FlxG.keys.pressed.SHIFT;
+        var controlHeld = FlxG.keys.pressed.CONTROL;
 
-        var topActionArray = [FlxG.keys.justPressed.R,FlxG.keys.justPressed.ESCAPE,FlxG.keys.justPressed.Q,
-                                FlxG.keys.justPressed.E,FlxG.keys.justPressed.ENTER];
+        var topActionArray = [FlxG.keys.justPressed.SPACE,FlxG.keys.justPressed.ESCAPE,FlxG.keys.justPressed.Q,
+                                FlxG.keys.justPressed.E,FlxG.keys.justPressed.ENTER,FlxG.keys.justPressed.C,FlxG.keys.justPressed.V];
 
         if (topActionArray.contains(true)) 
         {
@@ -119,90 +175,152 @@ class OffsetState extends MusicBeatState
                     switch (i)
                     {
                         case 0:
-                            FlxG.switchState(new OffsetState(customCharName));
+                            FlxG.switchState(new OffsetState(customCharName,customCharDir,!charOnRight,offsetChar.offsets));
                         case 1:
                             FlxG.sound.playMusic(Paths.music('freakyMenu'), 0.1);
                             FlxG.sound.music.fadeIn(4, 0, 0.7);
                             Conductor.changeBPM(102);
                             FlxG.switchState(new CharacterSelectionState());
+                            FlxG.sound.play(Paths.sound('cancelMenu','title'));
                         case 2: changeAnim(-1);
                         case 3: changeAnim(1);
                         case 4: 
                             #if cpp
-                            var content:String = "Offsets for '" + customCharName + "'";
-                            content += '\nIn-game basic offsets (add 100,100 as default place): X' + (offsetChar.x - 100) + " Y" + (offsetChar.y - 100);
+                            var content:String = "Offsets for '" + customCharName + "' on the " + (charOnRight ? 'right' : 'left') + ' side.';
+                            content += '\nIn-game basic offsets (add ' + getOffsetPos().x + ',' + getOffsetPos().y + ' as default place): X' + (offsetChar.x - getOffsetPos().x) + " Y" + (offsetChar.y - getOffsetPos().y);
                             for (i in offsetChar.animNames) content += "\nAnimation '" + i + "' offsets: " + offsetChar.offsets[i];
-                            sys.io.File.saveContent('assets/exports/' + customCharName + '.txt',content);
+                            sys.io.File.saveContent('assets/exports/' + customCharName + (charOnRight ? '-right' : '-left') + '.txt',content);
                             trace('Exported content!');
+
+                            content = "";
+                            for (i in offsetChar.animNames) content += i + " " + offsetChar.offsets[i][0] + " " + offsetChar.offsets[i][1] + "\n";
+                            sys.io.File.saveContent('assets/exports/ForKE1.6/$customCharName' + (charOnRight ? '-right' : '-left') + 'Offsets.txt',content);
+                            trace('Exported offset content!');
+
+                            Sys.command('start .\\assets\\exports\\');
                             #else
                             trace("Can't save content :(");
                             #end
+                        case 5: resetOffsetText();
+                        case 6: 
+                            if (!stopSpammingCamera)
+                            {
+                                stopSpammingCamera = true;
+                                var ex = camFollow.x;
+                                var dee = camFollow.y;
+                                var zoom = FlxG.camera.zoom;
+                                tweenCam(defZoom);
+                                if (charOnRight) camFollow.setPosition(offsetChar.getMidpoint().x - 100, offsetChar.getMidpoint().y - 100);
+                                else camFollow.setPosition(offsetChar.getMidpoint().x + 150, offsetChar.getMidpoint().y - 100);
+                                new FlxTimer().start(2, function(tmr:FlxTimer)
+                                {
+                                    if (charOnRight) camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+                                    else camFollow.setPosition(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+                                    new FlxTimer().start(1.25, function(tmr:FlxTimer)
+                                    {
+                                        tweenCam(zoom);
+                                        camFollow.setPosition(ex, dee);
+                                        stopSpammingCamera = false;
+                                    });
+                                });
+                            }
                     }
                 }
         }
 
+        
+
         var camArray = [FlxG.keys.pressed.UP,FlxG.keys.pressed.DOWN,FlxG.keys.pressed.LEFT,FlxG.keys.pressed.RIGHT];
-        if (camArray.contains(true))
+        if (camArray.contains(true) && !stopSpammingCamera)
             for (i in 0...camArray.length)
                 if (camArray[i] == true)
                 {
-                    switch (i)
+                    var multiplier = (shiftHeld ? 5 : 1);
+                    if (!controlHeld)
                     {
-                        case 0:
-                            camFollow.y -= 1;
-                        case 1:
-                            camFollow.y += 1;
-                        case 2:
-                            camFollow.x -= 1;
-                        case 3:
-                            camFollow.x += 1;
+                        switch (i) 
+                        {
+                            case 0:
+                                camFollow.y -= 1 * multiplier;
+                            case 1:
+                                camFollow.y += 1 * multiplier;
+                            case 2:
+                                camFollow.x -= 1 * multiplier;
+                            case 3:
+                                camFollow.x += 1 * multiplier;
+                        }
+                    }
+                    else
+                    {
+                        switch (i)
+                        {
+                            case 0:
+                                FlxG.camera.zoom += (shiftHeld ? 0.10 : 0.025);
+                            case 1:
+                                FlxG.camera.zoom -= (shiftHeld ? 0.10 : 0.025);
+                        }
                     }
                     FlxG.camera.focusOn(camFollow.getPosition());
                 }
 
-        var moveArray = [FlxG.keys.pressed.W,FlxG.keys.pressed.S,FlxG.keys.pressed.A,FlxG.keys.pressed.D,
-                        FlxG.keys.pressed.I,FlxG.keys.pressed.K,FlxG.keys.pressed.J,FlxG.keys.pressed.L,
-                        FlxG.keys.pressed.U, FlxG.keys.pressed.O];
+        var moveArray = [FlxG.keys.pressed.W,FlxG.keys.pressed.S,FlxG.keys.pressed.A,FlxG.keys.pressed.D];
         if (moveArray.contains(true))
             for (i in 0...moveArray.length)
                 if (moveArray[i] == true)
                 {
                     var anim = offsetChar.animNames[curAnim];
-                    switch (i)
+                    if (!shiftHeld)
                     {
-                        case 0:
-                            offsetChar.y -= 1;
-                        case 1:
-                            offsetChar.y += 1;
-                        case 2:
-                            offsetChar.x -= 1;
-                        case 3:
-                            offsetChar.x += 1;
-                        case 4:
-                            offsetChar.offsets[anim][1] += 1;
-                        case 5:
-                            offsetChar.offsets[anim][1] -= 1;
-                        case 6:
-                            offsetChar.offsets[anim][0] += 1;
-                        case 7:
-                            offsetChar.offsets[anim][0] -= 1;
-                        case 8:
-                            FlxG.camera.zoom += 0.05;
-                        case 9:
-                            FlxG.camera.zoom -= 0.05;
+                        switch (i)
+                        {
+                            case 0:
+                                offsetChar.y -= 1;
+                            case 1:
+                                offsetChar.y += 1;
+                            case 2:
+                                offsetChar.x -= 1;
+                            case 3:
+                                offsetChar.x += 1;
+                        }
                     }
-                    if (![8,9].contains(i))
+                    else
                     {
-                        offsetChar.playAnim(offsetChar.animNames[curAnim],true);
-                        gameOffset.text = 'Character offsets: X' + (offsetChar.x - 100) + ' Y' + (offsetChar.y - 100) + '\n(these are added with 100,100)';
-                        spriteOffset.text = "Anim: '" + anim + "'\nOffsets: X" + offsetChar.offsets[anim][0] + " Y" + offsetChar.offsets[anim][1];
-                        ghostChar.setPosition(offsetChar.getPosition().x,offsetChar.getPosition().y);
-                        ghostChar.offsets['idle'] = offsetChar.offsets['idle'];
+                        switch (i)
+                        {
+                            case 0:
+                                offsetChar.offsets[anim][1] += 1;
+                            case 1:
+                                offsetChar.offsets[anim][1] -= 1;
+                            case 2:
+                                offsetChar.offsets[anim][0] += 1;
+                            case 3:
+                                offsetChar.offsets[anim][0] -= 1;
+                        }
                     }
+                    
+                    if (![8,9].contains(i)) updateOffsetText();
                     
                 }
 
         super.update(elapsed);
+    }
+
+    public function resetOffsetText()
+    {
+        gameOffset.text = "X and Y is controlled with WASD\nOffsets are controlled with SHIFT + WASD";
+        spriteOffset.text = "Hit Q&E to swap animations.\nHit CONTROL + arrow keys to zoom, and normal arrow keys to move the camera.";
+        reminderText.text = 'Hit space to swap sides, and V to preview the in-game camera.';
+    }
+
+    public function updateOffsetText()
+    {
+        var anim = offsetChar.animNames[curAnim];
+        offsetChar.playAnim(offsetChar.animNames[curAnim],true);
+        gameOffset.text = 'Character offsets: X' + (offsetChar.x - getOffsetPos().x) + ' Y' + (offsetChar.y - getOffsetPos().y) + '\n(these are added with ' + getOffsetPos().x + ',' + getOffsetPos().y +')';
+        spriteOffset.text = "Anim: '" + anim + "'\nOffsets: X" + offsetChar.offsets[anim][0] + " Y" + offsetChar.offsets[anim][1];
+        ghostChar.setPosition(offsetChar.getPosition().x,offsetChar.getPosition().y);
+        ghostChar.offsets['idle'] = offsetChar.offsets['idle'];
+        reminderText.text = "Hit C to view controls, and Enter to export.";
     }
 
     public function changeAnim(?amount:Int)
@@ -211,8 +329,9 @@ class OffsetState extends MusicBeatState
         if (curAnim > offsetChar.animNames.length - 1) curAnim = 0;
         else if (curAnim < 0) curAnim = offsetChar.animNames.length - 1;
 
-        var anim = offsetChar.animNames[curAnim];
-        spriteOffset.text = "Anim: '" + anim + "'\nOffsets: X" + offsetChar.offsets[anim][0] + " Y" + offsetChar.offsets[anim][1];
+        updateOffsetText();
+        //var anim = offsetChar.animNames[curAnim];
+        //spriteOffset.text = "Anim: '" + anim + "'\nOffsets: X" + offsetChar.offsets[anim][0] + " Y" + offsetChar.offsets[anim][1];
     }
 
     override function beatHit()
@@ -235,5 +354,16 @@ class OffsetState extends MusicBeatState
             offsetChar.playAnim(offsetChar.animNames[curAnim]);
             ghostChar.dance();
         }
+    }
+}
+
+class Offset
+{
+    public var x:Int;
+    public var y:Int;
+    public function new(x:Int,y:Int)
+    {
+        this.x = x;
+        this.y = y;
     }
 }

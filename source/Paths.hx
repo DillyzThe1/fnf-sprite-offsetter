@@ -58,7 +58,7 @@ class Paths
 
     static public function sound(key:String, ?library:String)
     {
-        return getPath('$key.$SOUND_EXT', SOUND, library);
+        return getPath('sounds/$key.$SOUND_EXT', SOUND, library);
     }
 
     static public function txt(key:String, ?library:String)

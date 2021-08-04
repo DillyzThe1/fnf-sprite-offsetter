@@ -57,6 +57,7 @@ class CacheDebugState extends MusicBeatState
                             FlxG.switchState(new CacheDebugState());
                         case 1:
                             FlxG.switchState(new TitleState());
+                            FlxG.sound.play(Paths.sound('cancelMenu','title'));
                     }
                 }
         }

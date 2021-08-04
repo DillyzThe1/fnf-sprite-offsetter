@@ -60,7 +60,7 @@ class Character extends FlxSprite
         
     }
     
-    public function flip(?forceDir:Null<Bool> = false)
+    public function flip(?forceDir:Null<Bool> = null)
     {
         if (forceDir != null) this.flipX = forceDir;
         else this.flipX = !this.flipX;
@@ -101,5 +101,6 @@ class Character extends FlxSprite
     public function addOffset(name:String,x:Float = 0,y:Float = 0)
     {
         offsets.set(name, [x,y]);
+        //trace('offset added: ' + offsets.get(name));
     }
 }
