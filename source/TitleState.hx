@@ -11,6 +11,8 @@ import flixel.*;
 import flixel.group.FlxGroup;
 import flixel.math.*;
 
+using StringTools;
+
 class TitleState extends MusicBeatState
 {
     public static var init:Bool = false;
@@ -134,6 +136,8 @@ class TitleState extends MusicBeatState
 
         textAlpha.visible = false;
 
+        add(textAlpha);
+
         FlxTween.tween(textAlpha, {y: textAlpha.y + 20}, 2.9, {ease: FlxEase.quadInOut, type: PINGPONG});
 
         init = true;
@@ -184,7 +188,38 @@ class TitleState extends MusicBeatState
 
             new FlxTimer().start(2, function(tmr:FlxTimer)
             {
-                FlxG.switchState(new CharacterSelectionState());
+                var webReq = new haxe.Http("https://raw.githubusercontent.com/DillyzThe1/fnf-sprite-offsetter/main/version.loseTheGame");
+                var vers:String = '0.0.1';
+                var versNum = 1;
+                var logs:String = '- added aether';
+
+                webReq.onData = function(data:String)
+                {
+                    //vers = data.substring(0,data.indexOf(';'));
+                    logs = data.substring(data.indexOf('-'),data.length);
+
+                    var splitVersData = data.substring(0,data.indexOf(';')).split(':');
+                    vers = splitVersData[0];
+                    versNum = Std.parseInt(splitVersData[1]);
+
+                    var curVers = OutdatedState.curVers;
+                    var curVersNum = OutdatedState.releaseVers;
+
+                    if (versNum != curVersNum)
+                    {
+                        trace('v$vers (Update $versNum) is supposed to be here, but v$curVers (Update $curVersNum) is installed!');
+                        FlxG.switchState(new OutdatedState(vers,logs,versNum));
+                    }
+                    else FlxG.switchState(new CharacterSelectionState());
+                }
+                webReq.onError = function (bruh:String) 
+                {
+                    trace('web request failed: $bruh');
+                    FlxG.switchState(new CharacterSelectionState());
+                }
+                  
+                if (!OutdatedState.ignored) webReq.request();
+                else FlxG.switchState(new CharacterSelectionState());
             });
         }
 
