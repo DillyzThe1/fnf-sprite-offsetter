@@ -88,13 +88,13 @@ class OffsetState extends MusicBeatState
         boyfriend = new Boyfriend(770, 450, 'bf');
         if (!charOnRight)
         {
-            offsetChar = new OffsetCharacter(100,100,customCharName,false);
-            ghostChar = new OffsetCharacter(100,100,customCharName,false);
+            offsetChar = new OffsetCharacter(100,100,customCharName,customCharDir,false);
+            ghostChar = new OffsetCharacter(100,100,customCharName,customCharDir,false);
         }
         else
         {
-            offsetChar = new OffsetCharacter(770,450,customCharName,true);
-            ghostChar = new OffsetCharacter(770,450,customCharName,true);
+            offsetChar = new OffsetCharacter(770,450,customCharName,customCharDir,true);
+            ghostChar = new OffsetCharacter(770,450,customCharName,customCharDir,true);
         }
         if (starterOffsets != null && !offsetChar.preventOffsetChange) offsetChar.offsets = starterOffsets;
         ghostChar.alpha = 0.5;
